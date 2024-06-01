@@ -1,0 +1,141 @@
+<html>
+    <head>        
+        <title> Inspector </title>
+    </head>
+    <style>
+        .header {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .header input {
+            width: 170px;
+            height: 50px;
+            font-size: 25px;
+        }
+
+        .header .inspect_info {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+           
+        }
+
+        .header .inspect_info span {
+            font-size: 25px;
+        }
+
+        .header .inspect_info .inner_text {
+            overflow-y: scroll;
+            max-height: 300px;
+            min-height: 60px;
+            width: 500px;
+            background-color: rgba(109, 104, 104, 0);
+            border: 2px solid rgb(66, 64, 64);
+            border-radius: 5px;
+        }
+
+        .header .inspect_info .selector {
+            overflow-y: scroll;
+            max-height: 500px;
+            min-height: 60px;
+            width: 500px;
+            background-color: rgba(109, 104, 104, 0.3);
+            border: 2px solid rgb(66, 64, 64);
+            border-radius: 5px;
+        }
+
+        .opacity {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+
+    </style>
+    <body>
+        <div id="container">
+            <div class="header">
+                <input type="button" value="Inspect" id="inspector">
+                <div class="inspect_info">
+                    <span>Inner Text: </span>
+                    <div class="inner_text"></div>
+                    <span>Selectors: </span>
+                    <div class="selector"></div>
+                </div>
+                
+            </div>
+            <div class="content">
+                <div id="outer" class="test test1 test2">
+                    <div id="inner1" class="test test1 test2">foo</div>
+                    <div id="inner2">bar</div>
+                    <div id="inner3">baz</div>
+                    <div id="inner4">qux</div>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            window.addEventListener("load", (event) => {
+                function getParents(elem) {
+                    var parents = [];
+                    while(elem.parentNode && elem.parentNode.nodeName.toLowerCase() != 'body') {
+                        elem = elem.parentNode;
+                        parents.push(elem);
+                    }
+                    return parents;
+                }
+
+                function generateSelector(el) {
+                    if (!el.tagName) return '';
+                    var str = el.tagName.toLowerCase();
+                    str += (el.id != "") ? "#" + el.id : "";
+                    if (el.className) {
+                        var classes = el.className.split(/\s/);
+                        for (var i = 0; i < classes.length; i++) {
+                            str += "." + classes[i]
+                        }
+                    }
+                    return str;
+                }
+
+                var isInspecting = false;
+
+                window.addEventListener('mouseover', (e) => {
+                    if (!isInspecting) return;
+                    const {
+                        clientX: x,
+                        clientY: y
+                    } = e;
+
+                    const elementMouseIsOver = document.elementFromPoint(x, y);
+                    if (elementMouseIsOver.tagName.toLowerCase() === "body") return;
+
+                    var selector = "";
+                    selector += "##" + generateSelector(elementMouseIsOver) + '\n';
+                    const parents = getParents(elementMouseIsOver);
+                    parents.forEach((curVal) => {
+                        if (generateSelector(curVal) !== "") {
+                            selector += "##" + generateSelector(curVal) + '\n';
+                        }
+                    });
+
+                    document.querySelector('.header .inspect_info .inner_text').innerText = elementMouseIsOver.innerText;
+                    document.querySelector('.header .inspect_info .selector').innerText = selector;
+                });
+                
+                document.getElementById("inspector").addEventListener('click', () => {
+                    isInspecting = !isInspecting;
+                
+                    if (isInspecting) {
+                        document.getElementById("inspector").value = "Exit Inspect";
+                        document.getElementsByTagName("body")[0].classList.add("opacity");
+                    } else {
+                        document.getElementById("inspector").value = "Inspect";
+                        document.getElementsByTagName("body")[0].classList.remove("opacity");
+                    }
+                });
+            });
+            
+        </script>
+    </body>
+</html>
+
