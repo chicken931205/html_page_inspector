@@ -49,6 +49,12 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
+        .inspector_indicator {
+            border: 2px solid rgb(168, 32, 32);
+            background-color: rgb(212, 148, 148);
+            cursor: pointer;
+        }
+
 
     </style>
     <body>
@@ -100,6 +106,7 @@
                 }
 
                 var isInspecting = false;
+                var prevElem;
 
                 window.addEventListener('mouseover', (e) => {
                     if (!isInspecting) return;
@@ -110,6 +117,12 @@
 
                     const elementMouseIsOver = document.elementFromPoint(x, y);
                     if (elementMouseIsOver.tagName.toLowerCase() === "body") return;
+
+                    if (prevElem) {
+                        prevElem.classList.remove('inspector_indicator');
+                    }
+                    prevElem = elementMouseIsOver;
+                    elementMouseIsOver.classList.add('inspector_indicator');
 
                     var selector = "";
                     selector += "##" + generateSelector(elementMouseIsOver) + '\n';
@@ -132,6 +145,7 @@
                         document.getElementsByTagName("body")[0].classList.add("opacity");
                     } else {
                         document.getElementById("inspector").value = "Inspect";
+                        document.getElementById("inspector").classList.remove('inspector_indicator');
                         document.getElementsByTagName("body")[0].classList.remove("opacity");
                     }
                 });
